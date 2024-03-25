@@ -273,8 +273,39 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function convertDate(date) {
+  const chunksArr = date.split('-');
+  return `${chunksArr[1]}-${chunksArr[0]}-${chunksArr[2]}`;
+}
+function transformDate(date) {
+  const chunksArr = date.split('/');
+  for (let i = 0; i < chunksArr.length; i += 1) {
+    if (chunksArr[i] < 10) {
+      chunksArr[i] = '0'.concat(chunksArr[i]);
+    }
+  }
+  return `${chunksArr[1]}-${chunksArr[0]}-${chunksArr[2]}`;
+}
+
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  const workSchedule = [];
+  const startPeriod = new Date(convertDate(period.start));
+  const endPeriod = new Date(convertDate(period.end));
+  const currentDate = startPeriod;
+
+  while (currentDate <= endPeriod) {
+    for (let i = 0; i < countWorkDays && currentDate <= endPeriod; i += 1) {
+      const formateDate = new Intl.DateTimeFormat('en-US').format(
+        new Date(currentDate)
+      );
+      workSchedule.push(transformDate(formateDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    for (let i = 0; i < countOffDays && currentDate <= endPeriod; i += 1) {
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
+  return workSchedule;
 }
 
 /**
